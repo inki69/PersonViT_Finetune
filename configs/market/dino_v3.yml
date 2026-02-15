@@ -1,0 +1,68 @@
+MODEL:
+  # --- DINOv3-specific ---
+  NAME: 'dino_v3'
+  DINO_MODEL_NAME: 'dinov3_vitb14'
+  DINO_HUB_SOURCE: 'facebookresearch/dinov3'
+  FREEZE_BACKBONE: True
+  FREEZE_BACKBONE_EPOCHS: 10
+
+  # --- ReID head ---
+  PRETRAIN_PATH: ''
+  PRETRAIN_CHOICE: 'imagenet'
+  METRIC_LOSS_TYPE: 'triplet'
+  IF_LABELSMOOTH: 'off'
+  IF_WITH_CENTER: 'no'
+  NO_MARGIN: True
+  DEVICE_ID: ('0')
+  NECK: 'bnneck'
+  REDUCE_FEAT_DIM: False
+  FEAT_DIM: 768
+  DROPOUT_RATE: 0.0
+  ID_LOSS_TYPE: 'softmax'
+  COS_LAYER: False
+
+INPUT:
+  # DINOv3 uses patch14 — 224x224 is the native resolution.
+  # You can also try 256x128 (ReID standard) but may lose accuracy.
+  SIZE_TRAIN: [224, 224]
+  SIZE_TEST: [224, 224]
+  PROB: 0.5
+  RE_PROB: 0.5
+  PADDING: 10
+  # ImageNet normalisation (matches DINOv3 pretraining)
+  PIXEL_MEAN: [0.485, 0.456, 0.406]
+  PIXEL_STD: [0.229, 0.224, 0.225]
+
+DATASETS:
+  NAMES: ('market1501')
+  ROOT_DIR: ('/home/michuan.lh/datasets')
+
+DATALOADER:
+  SAMPLER: 'softmax_triplet'
+  NUM_INSTANCE: 4
+  NUM_WORKERS: 8
+
+SOLVER:
+  OPTIMIZER_NAME: 'SGD'
+  MAX_EPOCHS: 120
+  BASE_LR: 0.0004
+  WARMUP_EPOCHS: 20
+  IMS_PER_BATCH: 64
+  WARMUP_METHOD: 'cosine'
+  LARGE_FC_LR: False
+  CHECKPOINT_PERIOD: 120
+  LOG_PERIOD: 20
+  EVAL_PERIOD: 120
+  WEIGHT_DECAY: 1e-4
+  WEIGHT_DECAY_BIAS: 1e-4
+  BIAS_LR_FACTOR: 2
+
+TEST:
+  EVAL: True
+  IMS_PER_BATCH: 256
+  RE_RANKING: False
+  WEIGHT: ''
+  NECK_FEAT: 'before'
+  FEAT_NORM: 'yes'
+
+OUTPUT_DIR: '../../log/transreid/market/dino_v3_vitb14'
